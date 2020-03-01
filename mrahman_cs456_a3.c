@@ -5,6 +5,7 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 // declare global virus_count_array
@@ -12,10 +13,13 @@
 // mapping: index n -> virus count for fn
 int virus_count_array[4] = {0, 0, 0, 0};
 
-// initialize two second time struct for check_virus_count interval
+// initialize two second and ten millisecond time structs
 struct timespec two_seconds = {2, 0L};
+struct timespec ten_milliseconds = {0, 10000000L};
 
-
+// change this function, make it more modular use this just to check virus count
+// create separate function for barrier implementor and use this function in that
+// VIRUS SUM NEEDS TO BE GLOVAL so you can neutralize_viruses
 void * check_virus_count(void *arg)
 {
   while(1)
@@ -23,7 +27,8 @@ void * check_virus_count(void *arg)
     nanosleep(&two_seconds, NULL); // sleep for two seconds
 
     int virus_sum = 0;
-    for (int i=0; i < 4; i++) {
+    for (int i=0; i < 4; i++)
+    {
       virus_sum += virus_count_array[i];
     }
     printf("Total number of viruses in the building: %d\n", virus_sum);
@@ -36,10 +41,46 @@ void * neutralize_viruses(void *arg)
   return NULL;
 }
 
-void * let_in_viruses(void  *arg)
+// function to let in viruses every 10ms with a 10% probability-----------------
+void let_in_viruses(int door_number)
 {
+  while(1)
+  {
+    nanosleep(&ten_milliseconds, NULL);
+    double rand_num = (double)rand() / RAND_MAX;   // generate random value between 0 and 1
+    if (rand_num <= 0.1)
+    {
+      // printf("Letting in a virus through door %d!\n", door_number);
+      virus_count_array[door_number]++;
+    }
+  }
+}
+
+// functions for friend threads; denoted door number corresponds to friend number
+void * door0(void  *arg)
+{
+  let_in_viruses(0);
   return NULL;
 }
+
+void * door1(void  *arg)
+{
+  let_in_viruses(1);
+  return NULL;
+}
+
+void * door2(void  *arg)
+{
+  let_in_viruses(2);
+  return NULL;
+}
+
+void * door3(void  *arg)
+{
+  let_in_viruses(3);
+  return NULL;
+}
+
 
 int main (int argc, char **argv)
 {
@@ -56,25 +97,25 @@ int main (int argc, char **argv)
   }
 
   // assign friend threads ------------------------------
-  if (pthread_create(&f0, NULL, &let_in_viruses, NULL))
+  if (pthread_create(&f0, NULL, &door0, NULL))
   {
     printf("Could not create F0 thread\n");
     return -1;
   }
 
-  if (pthread_create(&f1, NULL, &let_in_viruses, NULL))
+  if (pthread_create(&f1, NULL, &door1, NULL))
   {
     printf("Could not create F1 thread\n");
     return -1;
   }
 
-  if (pthread_create(&f2, NULL, &let_in_viruses, NULL))
+  if (pthread_create(&f2, NULL, &door2, NULL))
   {
     printf("Could not create F2 thread\n");
     return -1;
   }
 
-  if (pthread_create(&f3, NULL, &let_in_viruses, NULL))
+  if (pthread_create(&f3, NULL, &door3, NULL))
   {
     printf("Could not create F3 thread\n");
     return -1;
