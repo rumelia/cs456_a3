@@ -19,9 +19,7 @@ int viruses_neutralized = 0;
 struct timespec two_seconds = {2, 0L};
 struct timespec ten_milliseconds = {0, 10000000L};
 
-// change this function, make it more modular use this just to check virus count
-// create separate function for barrier implementor and use this function in that
-// VIRUS SUM NEEDS TO BE GLOVAL so you can neutralize_viruses
+
 void * check_virus_count(void *arg) {
   while(1) {
     nanosleep(&two_seconds, NULL);      // sleep for two seconds
