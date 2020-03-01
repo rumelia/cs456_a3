@@ -5,26 +5,40 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <time.h>
 
 // declare global virus_count_array
 // holds the # of viruses each friend let in through their door
 // mapping: index n -> virus count for fn
-int virus_count_array[4];
+int virus_count_array[4] = {0, 0, 0, 0};
+
+// initialize two second time struct for check_virus_count interval
+struct timespec two_seconds = {2, 0L};
+
 
 void * check_virus_count(void *arg)
 {
+  while(1)
+  {
+    nanosleep(&two_seconds, NULL); // sleep for two seconds
 
+    int virus_sum = 0;
+    for (int i=0; i < 4; i++) {
+      virus_sum += virus_count_array[i];
+    }
+    printf("Total number of viruses in the building: %d\n", virus_sum);
+  }
+  return NULL;
 }
 
 void * neutralize_viruses(void *arg)
 {
-
+  return NULL;
 }
 
 void * let_in_viruses(void  *arg)
 {
-
-
+  return NULL;
 }
 
 int main (int argc, char **argv)
@@ -69,6 +83,12 @@ int main (int argc, char **argv)
   if (pthread_create(&virus_count_checker, NULL, &check_virus_count, NULL))
   {
     printf("Could not create CHECKER thread\n");
+    return -1;
+  }
+
+  if (pthread_join(virus_count_checker, NULL))
+  {
+    printf("Could not join thread\n");
     return -1;
   }
 
