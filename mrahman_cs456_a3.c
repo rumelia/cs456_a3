@@ -12,42 +12,47 @@
 // holds the # of viruses each friend let in through their door
 // mapping: index n -> virus count for fn
 int virus_count_array[4] = {0, 0, 0, 0};
-int viruses_let_in = 0;
-int viruses_neutralized = 0;
+// int viruses_let_in = 0;
+// int viruses_neutralized = 0;
 
 // initialize two second and ten millisecond time structs
 struct timespec two_seconds = {2, 0L};
 struct timespec ten_milliseconds = {0, 10000000L};
 
 
-void * check_virus_count(void *arg) {
+void * neutralize_and_check(void *arg) {
+  int loop_count = 0;
+  int viruses_neutralized = 0;  // viruses neutralized since beginning of thread execution
+
   while(1) {
-    nanosleep(&two_seconds, NULL);      // sleep for two seconds
-    viruses_let_in = 0;                 // reset viruses_let_in to 0
+    nanosleep(&ten_milliseconds, NULL); // sleep for 10ms
 
-    // calculate total # of viruses_let_in through the doors
-    for (int i=0; i < 4; i++) {
-      viruses_let_in += virus_count_array[i];
-      printf("Door %d count: %d\n", i, virus_count_array[i]);
-    }
-
-    // calculate total number of viruses in the building by taking difference
-    // of the number let in and the number neutralized
-    printf("Number of viruses neutralized: %d\n", viruses_neutralized);
-    int viruses_in_building = viruses_let_in - viruses_neutralized;
-    printf("Total number of viruses in the building: %d\n", viruses_in_building);
-  }
-  return NULL;
-}
-
-// function to neutralize viruses every 10ms with a 40% probability-------------
-void * neutralize_viruses(void *arg) {
-  while(1) {
-    nanosleep(&ten_milliseconds, NULL);
-    float rand_num = (float)random() / RAND_MAX;
+    // neutralize viruses
+    float rand_num = (double)random() / RAND_MAX;
     if (rand_num <= 0.4f) {
       viruses_neutralized++;
     }
+
+    // if loop_count == 200, approx 2 seconds have elapsed, so check the total number of viruses let in
+    if (loop_count == 200) {
+      // calculate total # of viruses_let_in through the doors
+      int viruses_let_in = 0;                 // reset viruses_let_in to 0
+
+      for (int i=0; i < 4; i++) {
+        viruses_let_in += virus_count_array[i];
+        printf("Door %d count: %d\n", i, virus_count_array[i]);
+      }
+
+      printf("Loop count is: %d\n", loop_count);
+      printf("Number of viruses let in: %d\n", viruses_let_in);
+      printf("Number of viruses neutralized: %d\n", viruses_neutralized);
+
+      int viruses_in_building = viruses_let_in - viruses_neutralized;
+      printf("Total # of viruses in the building: %d\n", viruses_in_building);
+      loop_count = 0;   // reset loop_count to 0
+    }
+
+    loop_count++;
   }
   return NULL;
 }
@@ -90,10 +95,9 @@ int main (int argc, char **argv) {
   // declare me and friend threads
   pthread_t me;
   pthread_t f0, f1, f2, f3;
-  pthread_t virus_count_checker;
 
   // assign me thread ----------------------------------
-  if (pthread_create(&me, NULL, &neutralize_viruses, NULL)) {
+  if (pthread_create(&me, NULL, &neutralize_and_check, NULL)) {
     printf("Could not create ME thread\n");
     return -1;
   }
@@ -119,13 +123,8 @@ int main (int argc, char **argv) {
     return -1;
   }
 
-  if (pthread_create(&virus_count_checker, NULL, &check_virus_count, NULL)) {
-    printf("Could not create CHECKER thread\n");
-    return -1;
-  }
-
-  if (pthread_join(virus_count_checker, NULL)) {
-    printf("Could not join CHECKER thread\n");
+  if (pthread_join(me, NULL)) {
+    printf("Could not join ME thread\n");
     return -1;
   }
 
