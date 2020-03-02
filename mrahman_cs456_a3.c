@@ -12,22 +12,23 @@
 // holds the # of viruses each friend let in through their door
 // mapping: index n -> virus count for fn
 int virus_count_array[4] = {0, 0, 0, 0};
-// int viruses_let_in = 0;
-// int viruses_neutralized = 0;
+
+// declare variable n
+// if viruses_in_building < n - OK, else close doors till viruses_in_building < n/2
+int n;
 
 // initialize two second and ten millisecond time structs
 struct timespec two_seconds = {2, 0L};
 struct timespec ten_milliseconds = {0, 10000000L};
 
-
 void * neutralize_and_check(void *arg) {
   int loop_count = 0;
-  int viruses_neutralized = 0;  // viruses neutralized since beginning of thread execution
+  int viruses_neutralized = 0;  // viruses neutralized since beginning of program
 
   while(1) {
     nanosleep(&ten_milliseconds, NULL); // sleep for 10ms
 
-    // neutralize viruses
+    // neutralize viruses every 10ms with a 40% probability
     float rand_num = (double)random() / RAND_MAX;
     if (rand_num <= 0.4f) {
       viruses_neutralized++;
@@ -49,21 +50,23 @@ void * neutralize_and_check(void *arg) {
 
       int viruses_in_building = viruses_let_in - viruses_neutralized;
       printf("Total # of viruses in the building: %d\n", viruses_in_building);
+
+      if (viruses_in_building > n) {
+        printf("WARNING: NUMBER OF VIRUSES IN BUILDING EXCEEDED N\nCLOSING DOORS\n");
+      }
       loop_count = 0;   // reset loop_count to 0
     }
-
     loop_count++;
   }
   return NULL;
 }
 
-// function to let in viruses every 10ms with a 10% probability-----------------
+// function to let in viruses every 10ms with a 10% probability
 void let_in_viruses(int door_number) {
   while(1) {
     nanosleep(&ten_milliseconds, NULL);
     float rand_num = (float)random() / RAND_MAX;   // generate random value between 0 and 1
     if (rand_num <= 0.1f) {
-      // printf("DOOR THREAD: Random number generated for DOOR %d: %lf\n", door_number, rand_num);
       virus_count_array[door_number]++;
     }
   }
@@ -92,6 +95,9 @@ void * door3(void  *arg) {
 
 
 int main (int argc, char **argv) {
+  printf("Please enter the value for n: ");
+  scanf("%d", &n);
+  printf("The value entered for n is: %d\n", n);
   // declare me and friend threads
   pthread_t me;
   pthread_t f0, f1, f2, f3;
