@@ -25,10 +25,14 @@ void * check_virus_count(void *arg) {
     nanosleep(&two_seconds, NULL);      // sleep for two seconds
     viruses_let_in = 0;                 // reset viruses_let_in to 0
 
+    // calculate total # of viruses_let_in through the doors
     for (int i=0; i < 4; i++) {
       viruses_let_in += virus_count_array[i];
       printf("Door %d count: %d\n", i, virus_count_array[i]);
     }
+
+    // calculate total number of viruses in the building by taking difference
+    // of the number let in and the number neutralized
     printf("Number of viruses neutralized: %d\n", viruses_neutralized);
     int viruses_in_building = viruses_let_in - viruses_neutralized;
     printf("Total number of viruses in the building: %d\n", viruses_in_building);
@@ -36,11 +40,12 @@ void * check_virus_count(void *arg) {
   return NULL;
 }
 
+// function to neutralize viruses every 10ms with a 40% probability-------------
 void * neutralize_viruses(void *arg) {
   while(1) {
     nanosleep(&ten_milliseconds, NULL);
-    double rand_num = (double)rand() / RAND_MAX;
-    if (rand_num <= 0.4) {
+    float rand_num = (float)random() / RAND_MAX;
+    if (rand_num <= 0.4f) {
       viruses_neutralized++;
     }
   }
@@ -51,10 +56,9 @@ void * neutralize_viruses(void *arg) {
 void let_in_viruses(int door_number) {
   while(1) {
     nanosleep(&ten_milliseconds, NULL);
-    double rand_num = (double)rand() / RAND_MAX;   // generate random value between 0 and 1
-    if (rand_num <= 0.1) {
-      // printf("Letting in a virus through door %d!\n", door_number);
-      printf("DOOR THREAD: Random number generated for DOOR %d: %lf\n", door_number, rand_num);
+    float rand_num = (float)random() / RAND_MAX;   // generate random value between 0 and 1
+    if (rand_num <= 0.1f) {
+      // printf("DOOR THREAD: Random number generated for DOOR %d: %lf\n", door_number, rand_num);
       virus_count_array[door_number]++;
     }
   }
