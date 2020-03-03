@@ -17,8 +17,7 @@ int virus_count_array[4] = {0, 0, 0, 0};
 // if viruses_in_building < n - OK, else close doors till viruses_in_building < n/2
 int n;
 
-// initialize two second and ten millisecond time structs
-struct timespec two_seconds = {2, 0L};
+// initialize ten millisecond time struct
 struct timespec ten_milliseconds = {0, 10000000L};
 
 void * neutralize_and_check(void *arg) {
@@ -41,18 +40,14 @@ void * neutralize_and_check(void *arg) {
 
       for (int i=0; i < 4; i++) {
         viruses_let_in += virus_count_array[i];
-        printf("Door %d count: %d\n", i, virus_count_array[i]);
       }
-
-      printf("Loop count is: %d\n", loop_count);
-      printf("Number of viruses let in: %d\n", viruses_let_in);
-      printf("Number of viruses neutralized: %d\n", viruses_neutralized);
 
       int viruses_in_building = viruses_let_in - viruses_neutralized;
       printf("Total # of viruses in the building: %d\n", viruses_in_building);
 
       if (viruses_in_building > n) {
-        printf("WARNING: NUMBER OF VIRUSES IN BUILDING EXCEEDED N\nCLOSING DOORS\n");
+        printf("WARNING: NUMBER OF VIRUSES IN BUILDING EXCEEDED N\n");
+        printf("----------------CLOSING DOORS----------------------\n");
       }
       loop_count = 0;   // reset loop_count to 0
     }
@@ -75,9 +70,11 @@ void * let_in_viruses(void* arg) {
 
 
 int main (int argc, char **argv) {
+  
   printf("Please enter the value for n: ");
   scanf("%d", &n);
-  printf("The value entered for n is: %d\n", n);
+  printf("Maximum number of viruses allowed in the building: %d\n", n);
+
   // declare me and friend threads
   pthread_t me;
   pthread_t f0, f1, f2, f3;
