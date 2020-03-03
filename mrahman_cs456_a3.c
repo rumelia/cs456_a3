@@ -62,7 +62,8 @@ void * neutralize_and_check(void *arg) {
 }
 
 // function to let in viruses every 10ms with a 10% probability
-void let_in_viruses(int door_number) {
+void * let_in_viruses(void* arg) {
+  unsigned long door_number = (unsigned long)arg;
   while(1) {
     nanosleep(&ten_milliseconds, NULL);
     float rand_num = (float)random() / RAND_MAX;   // generate random value between 0 and 1
@@ -70,27 +71,6 @@ void let_in_viruses(int door_number) {
       virus_count_array[door_number]++;
     }
   }
-}
-
-// functions for friend threads; denoted door number corresponds to friend number
-void * door0(void  *arg) {
-  let_in_viruses(0);
-  return NULL;
-}
-
-void * door1(void  *arg) {
-  let_in_viruses(1);
-  return NULL;
-}
-
-void * door2(void  *arg) {
-  let_in_viruses(2);
-  return NULL;
-}
-
-void * door3(void  *arg) {
-  let_in_viruses(3);
-  return NULL;
 }
 
 
@@ -109,22 +89,22 @@ int main (int argc, char **argv) {
   }
 
   // assign friend threads ------------------------------
-  if (pthread_create(&f0, NULL, &door0, NULL)) {
+  if (pthread_create(&f0, NULL, &let_in_viruses, (void*)0)) {
     printf("Could not create F0 thread\n");
     return -1;
   }
 
-  if (pthread_create(&f1, NULL, &door1, NULL)) {
+  if (pthread_create(&f1, NULL, &let_in_viruses, (void*)1)) {
     printf("Could not create F1 thread\n");
     return -1;
   }
 
-  if (pthread_create(&f2, NULL, &door2, NULL)) {
+  if (pthread_create(&f2, NULL, &let_in_viruses, (void*)2)) {
     printf("Could not create F2 thread\n");
     return -1;
   }
 
-  if (pthread_create(&f3, NULL, &door3, NULL)) {
+  if (pthread_create(&f3, NULL, &let_in_viruses, (void*)3)) {
     printf("Could not create F3 thread\n");
     return -1;
   }
