@@ -37,6 +37,12 @@ void * neutralize_and_check(void *arg) {
     viruses_in_building = viruses_let_in - viruses_neutralized;
 
     if (viruses_in_building > 0) {
+      printf("\n--------------------STATS--------------------------\n");
+      printf("Total no. of viruses: \n");
+      printf("LET IN: %d\n", viruses_let_in);
+      printf("NEUTRALIZED: %d\n", viruses_neutralized);
+      printf("CURRENTLY IN BUILDING: %d\n\n", viruses_in_building);
+      printf("--------------------STATS--------------------------\n");
       // neutralize viruses every 10ms with a 40% probability
       float rand_num = (double)random() / RAND_MAX;
       if (rand_num <= 0.4f) {
@@ -45,7 +51,14 @@ void * neutralize_and_check(void *arg) {
     }
 
     if (doors_closed && viruses_in_building < (n/2)) {
-      printf("\n\nVIRUS COUNT UNDER CONTROL(=%d)\n", (n/2));
+      printf("\n--------------------STATS--------------------------\n");
+      printf("Total no. of viruses: \n");
+      printf("LET IN: %d\n", viruses_let_in);
+      printf("NEUTRALIZED: %d\n", viruses_neutralized);
+      printf("CURRENTLY IN BUILDING: %d\n\n", viruses_in_building);
+      printf("--------------------STATS--------------------------\n");
+
+      printf("\n\nVIRUS COUNT (< %d) UNDER CONTROL\n", (n/2));
       printf("--------------------OPENING DOORS--------------------------\n\n");
 
       doors_closed = 0;
@@ -76,7 +89,7 @@ void * neutralize_and_check(void *arg) {
       printf("--------------------STATS--------------------------\n");
 
       if (!doors_closed && viruses_in_building > n) {
-        printf("\n\nWARNING: NUMBER OF VIRUSES IN BUILDING EXCEEDED MAX ALLOWED(=%d)\n", n);
+        printf("\n\nWARNING: VIRUS COUNT (> %d) EXCEEDED MAX ALLOWED\n", n);
         printf("--------------------CLOSING DOORS--------------------------\n\n");
 
         doors_closed = 1;
@@ -114,9 +127,20 @@ void * let_in_viruses(void* arg) {
 
 int main (int argc, char **argv) {
 
-  printf("Please enter the value for n: ");
-  scanf("%d", &n);
-  printf("Maximum number of viruses allowed in the building: %d\n", n);
+  if (argc == 2) {
+    n = atoi(argv[1]);
+    printf("Maximum number of viruses allowed in the building: %d\n", n);
+  } else if (argc > 2) {
+    printf("Error: Too many arguments supplied. Please enter one value of n.\n");
+    return 0;
+  } else {
+    printf("Error: At least one argument expected to set value of n.\n");
+    return 0;
+  }
+
+  // printf("Please enter the value for n: ");
+  // scanf("%d", &n);
+  // printf("Maximum number of viruses allowed in the building: %d\n", n);
 
   // initialize all semaphores
   for (int i=0; i<4; i++) {
