@@ -37,12 +37,6 @@ void * neutralize_and_check(void *arg) {
     viruses_in_building = viruses_let_in - viruses_neutralized;
 
     if (viruses_in_building > 0) {
-      printf("\n--------------------EVERY 10MS STATS--------------------------\n");
-      printf("Total no. of viruses: \n");
-      printf("LET IN: %d\n", viruses_let_in);
-      printf("NEUTRALIZED: %d\n", viruses_neutralized);
-      printf("CURRENTLY IN BUILDING: %d\n\n", viruses_in_building);
-      printf("----------------------------------------------\n");
       // neutralize viruses every 10ms with a 40% probability
       float rand_num = (double)random() / RAND_MAX;
       if (rand_num <= 0.4f) {
@@ -51,14 +45,7 @@ void * neutralize_and_check(void *arg) {
     }
 
     if (doors_closed && viruses_in_building < (n/2)) {
-      printf("\n--------------------VIRUSES IN BUILDING < N/2 STATEMENT PASSED--------------------------\n");
-      printf("Total no. of viruses: \n");
-      printf("LET IN: %d\n", viruses_let_in);
-      printf("NEUTRALIZED: %d\n", viruses_neutralized);
-      printf("CURRENTLY IN BUILDING: %d\n\n", viruses_in_building);
-      printf("--------------------STATS--------------------------\n");
-
-      printf("\n\nVIRUS COUNT (< %d) UNDER CONTROL\n", (n/2));
+      printf("\n\nVIRUS COUNT IS %d (< %d) UNDER CONTROL\n", viruses_in_building, (n/2));
       printf("--------------------OPENING DOORS--------------------------\n\n");
 
       doors_closed = 0;
@@ -67,9 +54,9 @@ void * neutralize_and_check(void *arg) {
       // threads up in a controlled manner
       for (int i=0; i<4; i++) {
         sem_post(&semaphore_array[i]);
-        int sem_value;
-        sem_getvalue(&semaphore_array[i], &sem_value);
-        printf("Value of sem%d: %d\n", i, sem_value);
+        // int sem_value;
+        // sem_getvalue(&semaphore_array[i], &sem_value);
+        // printf("Value of sem%d: %d\n", i, sem_value);
       }
     }
 
@@ -92,7 +79,7 @@ void * neutralize_and_check(void *arg) {
       printf("----------------------------------------------\n");
 
       if (!doors_closed && viruses_in_building > n) {
-        printf("\n\nWARNING: VIRUS COUNT (> %d) EXCEEDED MAX ALLOWED\n", n);
+        printf("\n\nWARNING: VIRUS COUNT IS %d (> %d) EXCEEDED MAX ALLOWED\n", viruses_in_building, n);
         printf("--------------------CLOSING DOORS--------------------------\n\n");
 
         doors_closed = 1;
@@ -101,9 +88,9 @@ void * neutralize_and_check(void *arg) {
         // threads to sleep in a controlled manner
         for (int i=0; i<4; i++) {
           sem_wait(&semaphore_array[i]);
-          int sem_value;
-          sem_getvalue(&semaphore_array[i], &sem_value);
-          printf("Value of sem%d: %d\n", i, sem_value);
+          // int sem_value;
+          // sem_getvalue(&semaphore_array[i], &sem_value);
+          // printf("Value of sem%d: %d\n", i, sem_value);
         }
       }
       loop_count = 0;   // reset loop_count to 0
@@ -144,17 +131,13 @@ int main (int argc, char **argv) {
     return 0;
   }
 
-  // printf("Please enter the value for n: ");
-  // scanf("%d", &n);
-  // printf("Maximum number of viruses allowed in the building: %d\n", n);
-
   // initialize all semaphores
   for (int i=0; i<4; i++) {
-    printf("Initializing sem%d\n", i);
+    // printf("Initializing sem%d\n", i);
     sem_init(&semaphore_array[i], 0, 1);
-    int sem_value;
-    sem_getvalue(&semaphore_array[i], &sem_value);
-    printf("Value of sem%d: %d\n", i, sem_value);
+    // int sem_value;
+    // sem_getvalue(&semaphore_array[i], &sem_value);
+    // printf("Value of sem%d: %d\n", i, sem_value);
   }
 
   // declare me and friend threads
